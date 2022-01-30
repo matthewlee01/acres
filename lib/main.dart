@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:acres/model/acre.dart';
+import 'package:acres/model/position.dart';
 
 void main() {
   runApp(const App());
 }
 
 class App extends StatelessWidget {
+  static const size = 4;
   const App({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
@@ -27,40 +30,55 @@ class App extends StatelessWidget {
             child: SizedBox(
                 width: 500,
                 height: 500,
-                child: AspectRatio(aspectRatio: 1, child: Land()))));
+                child: AspectRatio(aspectRatio: 1, child: Land(size: size)))));
   }
 }
 
 class Land extends StatelessWidget {
-  const Land({Key? key}) : super(key: key);
+  const Land({
+    Key? key,
+    required this.size,
+  }) : super(key: key);
+
+  final int size;
+
+  List<Acre> generateAcres(int size) {
+    List<Acre> acres = [];
+    for (int i = 0; i < (size * size) - 1; i++) {
+      acres.add(Acre(
+          position: Position(x: i ~/ size, y: i % size), type: AcreType.open));
+    }
+    return acres;
+  }
 
   @override
   Widget build(BuildContext context) {
     return GridView.count(
-      primary: false,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      crossAxisCount: 2,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text("1"),
-          color: Colors.teal[100],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('2'),
-          color: Colors.teal[200],
-        ),
-        Container(
-          padding: const EdgeInsets.all(8),
-          child: const Text('3'),
-          color: Colors.teal[300],
-        ),
-      ],
+        primary: false,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        crossAxisCount: size,
+        children: generateAcres(size).map((acre) {
+          return AcreTile(
+            acre: acre,
+          );
+        }).toList());
+  }
+}
+
+class AcreTile extends StatelessWidget {
+  const AcreTile({Key? key, required this.acre}) : super(key: key);
+
+  final Acre acre;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: Text(acre.toString()),
+      onPressed: () {},
     );
   }
 }

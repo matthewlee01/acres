@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:acres/puzzle/position.dart';
-import 'package:acres/puzzle/acre.dart';
+import 'package:acres/model/position.dart';
+import 'package:acres/model/acre.dart';
 
 void main() {
   const testX = 2;

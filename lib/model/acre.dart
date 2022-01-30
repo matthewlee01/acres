@@ -1,4 +1,4 @@
-import 'package:acres/puzzle/position.dart';
+import 'package:acres/model/position.dart';
 import 'package:equatable/equatable.dart';
 
 enum AcreType { open, closed, empty }

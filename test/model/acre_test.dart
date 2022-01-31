@@ -6,11 +6,11 @@ void main() {
   const testX = 2;
   const testY = 2;
   const p = Position(x: testX, y: testY);
-  const a = Acre(position: p, type: AcreType.open);
+  var a = Acre(position: p, type: AcreType.closed);
 
   test('constructer should set proper values', () {
     expect(a.position.x, testX);
     expect(a.position.y, testY);
-    expect(a.type, AcreType.open);
+    expect(a.type, AcreType.closed);
   });
 }

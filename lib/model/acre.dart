@@ -5,6 +5,11 @@ enum AcreType {
   source,
   tb,
   rl,
+  trbl,
+  tr,
+  rb,
+  bl,
+  tl,
   closed,
   empty,
 }
@@ -23,10 +28,26 @@ class Acre extends Equatable {
     required this.position,
     required this.type,
     this.saturation = false,
-  })  : openT = (type == AcreType.tb || type == AcreType.source),
-        openR = (type == AcreType.rl || type == AcreType.source),
-        openB = (type == AcreType.tb || type == AcreType.source),
-        openL = (type == AcreType.rl || type == AcreType.source);
+  })  : openT = (type == AcreType.tb ||
+            type == AcreType.tr ||
+            type == AcreType.tl ||
+            type == AcreType.trbl ||
+            type == AcreType.source),
+        openR = (type == AcreType.rl ||
+            type == AcreType.tr ||
+            type == AcreType.rb ||
+            type == AcreType.trbl ||
+            type == AcreType.source),
+        openB = (type == AcreType.tb ||
+            type == AcreType.rb ||
+            type == AcreType.bl ||
+            type == AcreType.trbl ||
+            type == AcreType.source),
+        openL = (type == AcreType.rl ||
+            type == AcreType.bl ||
+            type == AcreType.tl ||
+            type == AcreType.trbl ||
+            type == AcreType.source);
 
   // overrides toString with props
   @override

@@ -148,19 +148,29 @@ class _LandState extends State<Land> {
             _posToAcre(Position(x: p.x, y: p.y + 1)).saturation));
   }
 
+  // clears saturation from all acres
+  void drain() {
+    for (int i = 0; i < _acres.length; i++) {
+      _acres[i] = _acres[i].copyWith(newS: false);
+    }
+  }
+
+  // saturates acres
   void irrigate() {
+    // iterate, recurse if contiguous and not already saturated
     for (int i = 0; i < _acres.length; i++) {
       Acre acre = _acres[i];
-      if ((acre.type == AcreType.source || contiguous(acre))) {
+      if ((acre.type == AcreType.source || contiguous(acre)) &&
+          acre.saturation == false) {
         _acres[i] = acre.copyWith(newS: true);
-      } else {
-        _acres[i] = acre.copyWith(newS: false);
+        irrigate();
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    drain();
     irrigate();
     return GridView.count(
       primary: false,

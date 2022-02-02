@@ -5,11 +5,15 @@ enum AcreType {
   source,
   tb,
   rl,
-  trbl,
   tr,
   rb,
   bl,
   tl,
+  trb,
+  rbl,
+  tbl,
+  tlr,
+  trbl,
   closed,
   empty,
 }
@@ -31,21 +35,33 @@ class Acre extends Equatable {
   })  : openT = (type == AcreType.tb ||
             type == AcreType.tr ||
             type == AcreType.tl ||
+            type == AcreType.trb ||
+            type == AcreType.tbl ||
+            type == AcreType.tlr ||
             type == AcreType.trbl ||
             type == AcreType.source),
         openR = (type == AcreType.rl ||
             type == AcreType.tr ||
             type == AcreType.rb ||
+            type == AcreType.trb ||
+            type == AcreType.rbl ||
+            type == AcreType.tlr ||
             type == AcreType.trbl ||
             type == AcreType.source),
         openB = (type == AcreType.tb ||
             type == AcreType.rb ||
             type == AcreType.bl ||
+            type == AcreType.trb ||
+            type == AcreType.rbl ||
+            type == AcreType.tbl ||
             type == AcreType.trbl ||
             type == AcreType.source),
         openL = (type == AcreType.rl ||
             type == AcreType.bl ||
             type == AcreType.tl ||
+            type == AcreType.rbl ||
+            type == AcreType.tbl ||
+            type == AcreType.tlr ||
             type == AcreType.trbl ||
             type == AcreType.source);
 

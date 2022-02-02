@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:acres/model/acre.dart';
 import 'package:acres/model/position.dart';
 
+const double landWidth = 350;
+const double landHeight = 350;
 void main() {
   runApp(const App());
 }
@@ -28,8 +30,8 @@ class App extends StatelessWidget {
           primarySwatch: Colors.green),
       home: const Center(
         child: SizedBox(
-          width: 500,
-          height: 500,
+          width: landWidth,
+          height: landHeight,
           child: AspectRatio(
             aspectRatio: 1,
             child: Land(
@@ -172,14 +174,7 @@ class _LandState extends State<Land> {
   Widget build(BuildContext context) {
     drain();
     irrigate();
-    return GridView.count(
-      primary: false,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      crossAxisCount: widget.size,
+    return Stack(
       children: _acres.map(
         (acre) {
           return AcreTile(
@@ -207,14 +202,25 @@ class AcreTile extends StatelessWidget {
     if (acre.type == AcreType.empty) {
       return Container();
     }
-    return TextButton(
-      style: TextButton.styleFrom(
-          backgroundColor:
-              acre.saturation ? Colors.green[100] : Colors.green[50]),
-      child: Text(acre.toString()),
-      onPressed: () {
-        clickHandler(acre);
-      },
+    return Positioned(
+      left: acre.position.x * (landWidth / 4),
+      top: acre.position.y * (landHeight / 4),
+      width: landWidth / 4,
+      height: landHeight / 4,
+      child: TextButton(
+        style: TextButton.styleFrom(
+            backgroundColor:
+                acre.saturation ? Colors.green[100] : Colors.green[50]),
+        child: Text(
+          acre.toString(),
+          style: const TextStyle(
+            fontSize: 11,
+          ),
+        ),
+        onPressed: () {
+          clickHandler(acre);
+        },
+      ),
     );
   }
 }

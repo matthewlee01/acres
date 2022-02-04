@@ -1,5 +1,4 @@
 import 'package:acres/model/position.dart';
-import 'package:equatable/equatable.dart';
 
 enum AcreType {
   source,
@@ -18,8 +17,14 @@ enum AcreType {
   empty,
 }
 
-class Acre extends Equatable {
-  final Position position;
+extension ParseToString on AcreType {
+  String toShortString() {
+    return toString().split('.').last;
+  }
+}
+
+class Acre {
+  Position position;
   final AcreType type;
   final bool saturation;
 
@@ -28,9 +33,12 @@ class Acre extends Equatable {
   final bool openB;
   final bool openL;
 
-  const Acre({
+  final int id;
+
+  Acre({
     required this.position,
     required this.type,
+    required this.id,
     this.saturation = false,
   })  : openT = (type == AcreType.tb ||
             type == AcreType.tr ||
@@ -65,19 +73,14 @@ class Acre extends Equatable {
             type == AcreType.trbl ||
             type == AcreType.source);
 
-  // overrides toString with props
   @override
-  bool get stringify => true;
-
-  @override
-  List<Object> get props => [
-        position,
-        type,
-        saturation,
-      ];
+  String toString() {
+    return type.toShortString().toUpperCase() + "\n" + position.toString();
+  }
 
   Acre copyWith({Position? newP, AcreType? newT, bool? newS}) {
     return Acre(
+      id: id,
       position: newP ?? position,
       type: newT ?? type,
       saturation: newS ?? saturation,

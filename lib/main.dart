@@ -17,17 +17,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'acres',
-      theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.green),
+      theme: ThemeData(primarySwatch: Colors.green),
       home: const Center(
         child: SizedBox(
           width: landWidth,
@@ -66,11 +56,13 @@ class _LandState extends State<Land> {
   void initState() {
     super.initState();
     _acres = generateAcres(widget.size);
+    irrigate();
   }
 
   List<Acre> generateAcres(int size) {
     List<Acre> acres = [];
     acres.add(Acre(
+      id: 0,
       position: const Position(
         x: 0,
         y: 0,
@@ -80,6 +72,7 @@ class _LandState extends State<Land> {
     for (int i = 1; i < (size * size) - 1; i++) {
       acres.add(
         Acre(
+            id: i,
             position: Position(
               x: i % size,
               y: i ~/ size,
@@ -89,6 +82,7 @@ class _LandState extends State<Land> {
     }
     acres.add(
       Acre(
+        id: (size * size - 1),
         position: Position(
           x: size - 1,
           y: size - 1,
@@ -115,17 +109,19 @@ class _LandState extends State<Land> {
   void _slideAcres(Acre acre) {
     if (acre.type == AcreType.empty || !_acreSlideable(acre)) return;
     Position targetEmpty = acre.position;
+    Acre empty = _posToAcre(emptyPos);
     int dx = (acre.position.x - emptyPos.x).sign;
     int dy = (acre.position.y - emptyPos.y).sign;
 
     setState(() {
       while (emptyPos != targetEmpty) {
-        Position swapPos = Position(x: emptyPos.x + dx, y: emptyPos.y + dy);
-        _acres[_posToIndex(emptyPos)] =
-            _posToAcre(swapPos).copyWith(newP: emptyPos);
-        _acres[_posToIndex(swapPos)] =
-            Acre(position: swapPos, type: AcreType.empty);
-        emptyPos = swapPos;
+        Position swapP = Position(x: emptyPos.x + dx, y: emptyPos.y + dy);
+        Acre swap = _posToAcre(swapP);
+        empty.position = swapP;
+        swap.position = emptyPos;
+        _acres[_posToIndex(swapP)] = empty;
+        _acres[_posToIndex(emptyPos)] = swap;
+        emptyPos = swapP;
       }
     });
   }
@@ -172,55 +168,36 @@ class _LandState extends State<Land> {
 
   @override
   Widget build(BuildContext context) {
-    drain();
-    irrigate();
     return Stack(
-      children: _acres.map(
-        (acre) {
-          return AcreTile(
-            acre: acre,
-            clickHandler: _slideAcres,
-          );
-        },
-      ).toList(),
-    );
-  }
-}
-
-class AcreTile extends StatelessWidget {
-  const AcreTile({
-    Key? key,
-    required this.acre,
-    required this.clickHandler,
-  }) : super(key: key);
-
-  final Acre acre;
-  final void Function(Acre) clickHandler;
-
-  @override
-  Widget build(BuildContext context) {
-    if (acre.type == AcreType.empty) {
-      return Container();
-    }
-    return Positioned(
-      left: acre.position.x * (landWidth / 4),
-      top: acre.position.y * (landHeight / 4),
-      width: landWidth / 4,
-      height: landHeight / 4,
-      child: TextButton(
-        style: TextButton.styleFrom(
-            backgroundColor:
-                acre.saturation ? Colors.green[100] : Colors.green[50]),
-        child: Text(
-          acre.toString(),
-          style: const TextStyle(
-            fontSize: 11,
-          ),
-        ),
-        onPressed: () {
-          clickHandler(acre);
-        },
-      ),
+      children: _acres.map((acre) {
+        return AnimatedPositioned(
+          key: ValueKey(acre.id),
+          left: acre.position.x * (landWidth / widget.size),
+          top: acre.position.y * (landHeight / widget.size),
+          width: landWidth / widget.size,
+          height: landHeight / widget.size,
+          duration: const Duration(milliseconds: 420),
+          curve: Curves.ease,
+          onEnd: () {
+            setState(() {
+              drain();
+              irrigate();
+            });
+          },
+          child: (acre.type != AcreType.empty)
+              ? TextButton(
+                  style: TextButton.styleFrom(
+                      backgroundColor: acre.saturation
+                          ? Colors.green[100]
+                          : Colors.green[50]),
+                  onPressed: () {
+                    _slideAcres(acre);
+                  },
+                  child: Text(acre.toString()),
+                )
+              : Container(),
+        );
+      }).toList(),
     );
   }
 }

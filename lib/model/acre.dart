@@ -26,7 +26,7 @@ extension ParseToString on AcreType {
 class Acre {
   Position position;
   final AcreType type;
-  final bool saturation;
+  bool saturating;
 
   final bool openT;
   final bool openR;
@@ -39,7 +39,7 @@ class Acre {
     required this.position,
     required this.type,
     required this.id,
-    this.saturation = false,
+    this.saturating = false,
   })  : openT = (type == AcreType.tb ||
             type == AcreType.tr ||
             type == AcreType.tl ||
@@ -83,7 +83,7 @@ class Acre {
       id: id,
       position: newP ?? position,
       type: newT ?? type,
-      saturation: newS ?? saturation,
+      saturating: newS ?? saturating,
     );
   }
 }

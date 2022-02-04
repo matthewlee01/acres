@@ -59,6 +59,7 @@ class _LandState extends State<Land> {
     irrigate();
   }
 
+  // generates initial list of acres
   List<Acre> generateAcres(int size) {
     List<Acre> acres = [];
     acres.add(Acre(
@@ -94,18 +95,22 @@ class _LandState extends State<Land> {
     return acres;
   }
 
+  // converts pos to index
   int _posToIndex(Position p) {
     return p.x + p.y * widget.size;
   }
 
+  // converts pos to acre
   Acre _posToAcre(Position p) {
     return _acres[_posToIndex(p)];
   }
 
+  // checks if current acre is slideable
   bool _acreSlideable(Acre acre) {
     return (acre.position.x == emptyPos.x || acre.position.y == emptyPos.y);
   }
 
+  // slides tiles into empty space if possible
   void _slideAcres(Acre acre) {
     if (acre.type == AcreType.empty || !_acreSlideable(acre)) return;
     Position targetEmpty = acre.position;
@@ -126,30 +131,31 @@ class _LandState extends State<Land> {
     });
   }
 
+  // checks if an acre is saturated by its neighbours
   bool contiguous(Acre acre) {
     Position p = acre.position;
     return ((p.x > 0 &&
             acre.openL &&
             _posToAcre(Position(x: p.x - 1, y: p.y)).openR &&
-            _posToAcre(Position(x: p.x - 1, y: p.y)).saturation) ||
+            _posToAcre(Position(x: p.x - 1, y: p.y)).saturating) ||
         (p.x < widget.size - 1 &&
             acre.openR &&
             _posToAcre(Position(x: p.x + 1, y: p.y)).openL &&
-            _posToAcre(Position(x: p.x + 1, y: p.y)).saturation) ||
+            _posToAcre(Position(x: p.x + 1, y: p.y)).saturating) ||
         (p.y > 0 &&
             acre.openT &&
             _posToAcre(Position(x: p.x, y: p.y - 1)).openB &&
-            _posToAcre(Position(x: p.x, y: p.y - 1)).saturation) ||
+            _posToAcre(Position(x: p.x, y: p.y - 1)).saturating) ||
         (p.y < widget.size - 1 &&
             acre.openB &&
             _posToAcre(Position(x: p.x, y: p.y + 1)).openT &&
-            _posToAcre(Position(x: p.x, y: p.y + 1)).saturation));
+            _posToAcre(Position(x: p.x, y: p.y + 1)).saturating));
   }
 
-  // clears saturation from all acres
+  // clears saturating status from all acres
   void drain() {
     for (int i = 0; i < _acres.length; i++) {
-      _acres[i] = _acres[i].copyWith(newS: false);
+      _acres[i].saturating = false;
     }
   }
 
@@ -159,8 +165,10 @@ class _LandState extends State<Land> {
     for (int i = 0; i < _acres.length; i++) {
       Acre acre = _acres[i];
       if ((acre.type == AcreType.source || contiguous(acre)) &&
-          acre.saturation == false) {
-        _acres[i] = acre.copyWith(newS: true);
+          acre.saturating == false) {
+        setState(() {
+          _acres[i].saturating = true;
+        });
         irrigate();
       }
     }
@@ -171,32 +179,31 @@ class _LandState extends State<Land> {
     return Stack(
       children: _acres.map((acre) {
         return AnimatedPositioned(
-          key: ValueKey(acre.id),
-          left: acre.position.x * (landWidth / widget.size),
-          top: acre.position.y * (landHeight / widget.size),
-          width: landWidth / widget.size,
-          height: landHeight / widget.size,
-          duration: const Duration(milliseconds: 420),
-          curve: Curves.ease,
-          onEnd: () {
-            setState(() {
-              drain();
-              irrigate();
-            });
-          },
-          child: (acre.type != AcreType.empty)
-              ? TextButton(
-                  style: TextButton.styleFrom(
-                      backgroundColor: acre.saturation
-                          ? Colors.green[100]
-                          : Colors.green[50]),
-                  onPressed: () {
-                    _slideAcres(acre);
-                  },
-                  child: Text(acre.toString()),
-                )
-              : Container(),
-        );
+            key: ValueKey(acre.id),
+            left: acre.position.x * (landWidth / widget.size),
+            top: acre.position.y * (landHeight / widget.size),
+            width: landWidth / widget.size,
+            height: landHeight / widget.size,
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.ease,
+            onEnd: () {
+              setState(() {
+                drain();
+                irrigate();
+              });
+            },
+            child: (acre.type != AcreType.empty)
+                ? AnimatedContainer(
+                    duration: const Duration(milliseconds: 420),
+                    color:
+                        acre.saturating ? Colors.green[100] : Colors.green[50],
+                    child: TextButton(
+                      onPressed: () {
+                        _slideAcres(acre);
+                      },
+                      child: Text(acre.toString()),
+                    ))
+                : Container());
       }).toList(),
     );
   }

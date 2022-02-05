@@ -27,6 +27,7 @@ class Acre {
   Position position;
   final AcreType type;
   bool saturating;
+  bool saturated = false;
 
   final bool openT;
   final bool openR;
@@ -75,7 +76,11 @@ class Acre {
 
   @override
   String toString() {
-    return type.toShortString().toUpperCase() + "\n" + position.toString();
+    return type.toShortString().toUpperCase() +
+        "\n" +
+        position.toString() +
+        saturating.toString() +
+        saturated.toString();
   }
 
   Acre copyWith({Position? newP, AcreType? newT, bool? newS}) {

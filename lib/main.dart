@@ -70,6 +70,7 @@ class _LandState extends State<Land> {
       ),
       type: AcreType.source,
     ));
+    acres[0].saturated = true;
     for (int i = 1; i < (size * size) - 1; i++) {
       acres.add(
         Acre(
@@ -137,25 +138,31 @@ class _LandState extends State<Land> {
     return ((p.x > 0 &&
             acre.openL &&
             _posToAcre(Position(x: p.x - 1, y: p.y)).openR &&
+            _posToAcre(Position(x: p.x - 1, y: p.y)).saturated &&
             _posToAcre(Position(x: p.x - 1, y: p.y)).saturating) ||
         (p.x < widget.size - 1 &&
             acre.openR &&
             _posToAcre(Position(x: p.x + 1, y: p.y)).openL &&
+            _posToAcre(Position(x: p.x + 1, y: p.y)).saturated &&
             _posToAcre(Position(x: p.x + 1, y: p.y)).saturating) ||
         (p.y > 0 &&
             acre.openT &&
             _posToAcre(Position(x: p.x, y: p.y - 1)).openB &&
+            _posToAcre(Position(x: p.x, y: p.y - 1)).saturated &&
             _posToAcre(Position(x: p.x, y: p.y - 1)).saturating) ||
         (p.y < widget.size - 1 &&
             acre.openB &&
             _posToAcre(Position(x: p.x, y: p.y + 1)).openT &&
+            _posToAcre(Position(x: p.x, y: p.y + 1)).saturated &&
             _posToAcre(Position(x: p.x, y: p.y + 1)).saturating));
   }
 
   // clears saturating status from all acres
   void drain() {
     for (int i = 0; i < _acres.length; i++) {
-      _acres[i].saturating = false;
+      if (_acres[i].type != AcreType.source) {
+        _acres[i].saturating = false;
+      }
     }
   }
 
@@ -195,6 +202,12 @@ class _LandState extends State<Land> {
             child: (acre.type != AcreType.empty)
                 ? AnimatedContainer(
                     duration: const Duration(milliseconds: 420),
+                    onEnd: () {
+                      setState(() {
+                        acre.saturated = acre.saturating;
+                        irrigate();
+                      });
+                    },
                     color:
                         acre.saturating ? Colors.green[100] : Colors.green[50],
                     child: TextButton(

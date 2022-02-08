@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:acres/model/acre.dart';
 import 'package:acres/model/position.dart';
+import 'package:rive/rive.dart';
 
 const double landWidth = 350;
 const double landHeight = 350;
@@ -133,28 +134,31 @@ class _LandState extends State<Land> {
   }
 
   // checks if an acre is saturated by its neighbours
-  bool contiguous(Acre acre) {
+  // returns a list of bools corresponding to T,R,B,L
+  List<bool> contiguous(Acre acre) {
     Position p = acre.position;
-    return ((p.x > 0 &&
-            acre.openL &&
-            _posToAcre(Position(x: p.x - 1, y: p.y)).openR &&
-            _posToAcre(Position(x: p.x - 1, y: p.y)).saturated &&
-            _posToAcre(Position(x: p.x - 1, y: p.y)).saturating) ||
-        (p.x < widget.size - 1 &&
-            acre.openR &&
-            _posToAcre(Position(x: p.x + 1, y: p.y)).openL &&
-            _posToAcre(Position(x: p.x + 1, y: p.y)).saturated &&
-            _posToAcre(Position(x: p.x + 1, y: p.y)).saturating) ||
-        (p.y > 0 &&
-            acre.openT &&
-            _posToAcre(Position(x: p.x, y: p.y - 1)).openB &&
-            _posToAcre(Position(x: p.x, y: p.y - 1)).saturated &&
-            _posToAcre(Position(x: p.x, y: p.y - 1)).saturating) ||
-        (p.y < widget.size - 1 &&
-            acre.openB &&
-            _posToAcre(Position(x: p.x, y: p.y + 1)).openT &&
-            _posToAcre(Position(x: p.x, y: p.y + 1)).saturated &&
-            _posToAcre(Position(x: p.x, y: p.y + 1)).saturating));
+    return [
+      (p.y > 0 &&
+          acre.openT &&
+          _posToAcre(Position(x: p.x, y: p.y - 1)).openB &&
+          _posToAcre(Position(x: p.x, y: p.y - 1)).saturated &&
+          _posToAcre(Position(x: p.x, y: p.y - 1)).saturating),
+      (p.x < widget.size - 1 &&
+          acre.openR &&
+          _posToAcre(Position(x: p.x + 1, y: p.y)).openL &&
+          _posToAcre(Position(x: p.x + 1, y: p.y)).saturated &&
+          _posToAcre(Position(x: p.x + 1, y: p.y)).saturating),
+      (p.y < widget.size - 1 &&
+          acre.openB &&
+          _posToAcre(Position(x: p.x, y: p.y + 1)).openT &&
+          _posToAcre(Position(x: p.x, y: p.y + 1)).saturated &&
+          _posToAcre(Position(x: p.x, y: p.y + 1)).saturating),
+      (p.x > 0 &&
+          acre.openL &&
+          _posToAcre(Position(x: p.x - 1, y: p.y)).openR &&
+          _posToAcre(Position(x: p.x - 1, y: p.y)).saturated &&
+          _posToAcre(Position(x: p.x - 1, y: p.y)).saturating),
+    ];
   }
 
   // clears saturating status from all acres
@@ -162,6 +166,8 @@ class _LandState extends State<Land> {
     for (int i = 0; i < _acres.length; i++) {
       if (_acres[i].type != AcreType.source) {
         _acres[i].saturating = false;
+        _flowT?.value = false;
+        _flowB?.value = false;
       }
     }
   }
@@ -171,14 +177,28 @@ class _LandState extends State<Land> {
     // iterate, recurse if contiguous and not already saturated
     for (int i = 0; i < _acres.length; i++) {
       Acre acre = _acres[i];
-      if ((acre.type == AcreType.source || contiguous(acre)) &&
+      if ((acre.type == AcreType.source || contiguous(acre).contains(true)) &&
           acre.saturating == false) {
         setState(() {
           _acres[i].saturating = true;
+          if (acre.type == AcreType.tb) {
+            _flowT?.value = contiguous(acre)[0];
+            _flowB?.value = contiguous(acre)[2];
+          }
         });
         irrigate();
       }
     }
+  }
+
+  SMIBool? _flowT;
+  SMIBool? _flowB;
+
+  void _onRiveInit(Artboard artboard) {
+    final controller = StateMachineController.fromArtboard(artboard, 'flows');
+    artboard.addController(controller!);
+    _flowT = controller.findInput<bool>('fillingdown') as SMIBool;
+    _flowB = controller.findInput<bool>('fillingup') as SMIBool;
   }
 
   @override
@@ -200,22 +220,35 @@ class _LandState extends State<Land> {
               });
             },
             child: (acre.type != AcreType.empty)
-                ? AnimatedContainer(
-                    duration: const Duration(milliseconds: 420),
-                    onEnd: () {
-                      setState(() {
-                        acre.saturated = acre.saturating;
-                        irrigate();
-                      });
-                    },
-                    color:
-                        acre.saturating ? Colors.green[100] : Colors.green[50],
-                    child: TextButton(
-                      onPressed: () {
-                        _slideAcres(acre);
-                      },
-                      child: Text(acre.toString()),
-                    ))
+                ? (acre.type == AcreType.tb)
+                    ? GestureDetector(
+                        onTap: () {
+                          _slideAcres(acre);
+                        },
+                        child: RiveAnimation.asset(
+                          'acres.riv',
+                          fit: BoxFit.cover,
+                          stateMachines: ['flows'],
+                          onInit: _onRiveInit,
+                        ),
+                      )
+                    : AnimatedContainer(
+                        duration: const Duration(milliseconds: 420),
+                        onEnd: () {
+                          setState(() {
+                            acre.saturated = acre.saturating;
+                            irrigate();
+                          });
+                        },
+                        color: acre.saturating
+                            ? Colors.green[100]
+                            : Colors.green[50],
+                        child: TextButton(
+                          onPressed: () {
+                            _slideAcres(acre);
+                          },
+                          child: Text(acre.toString()),
+                        ))
                 : Container());
       }).toList(),
     );

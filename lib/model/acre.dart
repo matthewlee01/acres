@@ -1,4 +1,5 @@
 import 'package:acres/model/position.dart';
+import 'package:rive/rive.dart';
 
 enum AcreType {
   source,
@@ -33,6 +34,11 @@ class Acre {
   final bool openR;
   final bool openB;
   final bool openL;
+
+  SMIBool? flowT;
+  SMIBool? flowR;
+  SMIBool? flowB;
+  SMIBool? flowL;
 
   final int id;
 

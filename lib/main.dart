@@ -166,8 +166,10 @@ class _LandState extends State<Land> {
     for (int i = 0; i < _acres.length; i++) {
       if (_acres[i].type != AcreType.source) {
         _acres[i].saturating = false;
-        _flowT?.value = false;
-        _flowB?.value = false;
+        _acres[i].flowT?.value = false;
+        _acres[i].flowR?.value = false;
+        _acres[i].flowB?.value = false;
+        _acres[i].flowL?.value = false;
       }
     }
   }
@@ -182,23 +184,15 @@ class _LandState extends State<Land> {
         setState(() {
           _acres[i].saturating = true;
           if (acre.type == AcreType.tb) {
-            _flowT?.value = contiguous(acre)[0];
-            _flowB?.value = contiguous(acre)[2];
+            _acres[i].flowT?.value = contiguous(acre)[0];
+            _acres[i].flowR?.value = contiguous(acre)[1];
+            _acres[i].flowB?.value = contiguous(acre)[2];
+            _acres[i].flowL?.value = contiguous(acre)[3];
           }
         });
         irrigate();
       }
     }
-  }
-
-  SMIBool? _flowT;
-  SMIBool? _flowB;
-
-  void _onRiveInit(Artboard artboard) {
-    final controller = StateMachineController.fromArtboard(artboard, 'flows');
-    artboard.addController(controller!);
-    _flowT = controller.findInput<bool>('fillingdown') as SMIBool;
-    _flowB = controller.findInput<bool>('fillingup') as SMIBool;
   }
 
   @override
@@ -228,8 +222,30 @@ class _LandState extends State<Land> {
                         child: RiveAnimation.asset(
                           'acres.riv',
                           fit: BoxFit.cover,
-                          stateMachines: ['flows'],
-                          onInit: _onRiveInit,
+                          stateMachines: const ['flows'],
+                          artboard: acre.type.toShortString(),
+                          onInit: (Artboard artboard) {
+                            {
+                              final controller =
+                                  StateMachineController.fromArtboard(
+                                      artboard, 'flows',
+                                      onStateChange: (_, state) {
+                                setState(() {
+                                  acre.saturated = (state == 'full');
+                                  irrigate();
+                                });
+                              });
+                              artboard.addController(controller!);
+                              acre.flowT = controller
+                                  .findInput<bool>('filling down') as SMIBool;
+                              acre.flowR = controller
+                                  .findInput<bool>('filling left') as SMIBool;
+                              acre.flowB = controller
+                                  .findInput<bool>('filling up') as SMIBool;
+                              acre.flowL = controller
+                                  .findInput<bool>('filling right') as SMIBool;
+                            }
+                          },
                         ),
                       )
                     : AnimatedContainer(

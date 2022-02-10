@@ -3,18 +3,17 @@ import 'package:rive/rive.dart';
 
 enum AcreType {
   source,
+  trb,
+  rbl,
+  tbl,
+  trl,
+  trbl,
   tb,
   rl,
   tr,
   rb,
   bl,
   tl,
-  trb,
-  rbl,
-  tbl,
-  tlr,
-  trbl,
-  closed,
   empty,
 }
 
@@ -52,7 +51,7 @@ class Acre {
             type == AcreType.tl ||
             type == AcreType.trb ||
             type == AcreType.tbl ||
-            type == AcreType.tlr ||
+            type == AcreType.trl ||
             type == AcreType.trbl ||
             type == AcreType.source),
         openR = (type == AcreType.rl ||
@@ -60,7 +59,7 @@ class Acre {
             type == AcreType.rb ||
             type == AcreType.trb ||
             type == AcreType.rbl ||
-            type == AcreType.tlr ||
+            type == AcreType.trl ||
             type == AcreType.trbl ||
             type == AcreType.source),
         openB = (type == AcreType.tb ||
@@ -76,7 +75,7 @@ class Acre {
             type == AcreType.tl ||
             type == AcreType.rbl ||
             type == AcreType.tbl ||
-            type == AcreType.tlr ||
+            type == AcreType.trl ||
             type == AcreType.trbl ||
             type == AcreType.source);
 

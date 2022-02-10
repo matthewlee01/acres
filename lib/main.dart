@@ -10,7 +10,7 @@ void main() {
 }
 
 class App extends StatelessWidget {
-  static const size = 4;
+  static const size = 6;
   const App({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
@@ -183,12 +183,10 @@ class _LandState extends State<Land> {
           acre.saturating == false) {
         setState(() {
           _acres[i].saturating = true;
-          if (acre.type == AcreType.tb) {
-            _acres[i].flowT?.value = contiguous(acre)[0];
-            _acres[i].flowR?.value = contiguous(acre)[1];
-            _acres[i].flowB?.value = contiguous(acre)[2];
-            _acres[i].flowL?.value = contiguous(acre)[3];
-          }
+          _acres[i].flowT?.value = contiguous(acre)[0];
+          _acres[i].flowR?.value = contiguous(acre)[1];
+          _acres[i].flowB?.value = contiguous(acre)[2];
+          _acres[i].flowL?.value = contiguous(acre)[3];
         });
         irrigate();
       }
@@ -214,57 +212,50 @@ class _LandState extends State<Land> {
               });
             },
             child: (acre.type != AcreType.empty)
-                ? (acre.type == AcreType.tb)
-                    ? GestureDetector(
-                        onTap: () {
-                          _slideAcres(acre);
-                        },
-                        child: RiveAnimation.asset(
-                          'acres.riv',
-                          fit: BoxFit.cover,
-                          stateMachines: const ['flows'],
-                          artboard: acre.type.toShortString(),
-                          onInit: (Artboard artboard) {
-                            {
-                              final controller =
-                                  StateMachineController.fromArtboard(
-                                      artboard, 'flows',
-                                      onStateChange: (_, state) {
-                                setState(() {
+                ? GestureDetector(
+                    onTap: () {
+                      _slideAcres(acre);
+                    },
+                    child: RiveAnimation.asset(
+                      'acres.riv',
+                      fit: BoxFit.cover,
+                      stateMachines: const ['flows'],
+                      artboard: acre.type.toShortString(),
+                      onInit: (Artboard artboard) {
+                        {
+                          final controller =
+                              StateMachineController.fromArtboard(
+                            artboard,
+                            'flows',
+                            onStateChange: (_, state) {
+                              setState(
+                                () {
                                   acre.saturated = (state == 'full');
                                   irrigate();
-                                });
-                              });
-                              artboard.addController(controller!);
-                              acre.flowT = controller
-                                  .findInput<bool>('filling down') as SMIBool;
-                              acre.flowR = controller
-                                  .findInput<bool>('filling left') as SMIBool;
-                              acre.flowB = controller
-                                  .findInput<bool>('filling up') as SMIBool;
-                              acre.flowL = controller
-                                  .findInput<bool>('filling right') as SMIBool;
-                            }
-                          },
-                        ),
-                      )
-                    : AnimatedContainer(
-                        duration: const Duration(milliseconds: 420),
-                        onEnd: () {
-                          setState(() {
-                            acre.saturated = acre.saturating;
-                            irrigate();
-                          });
-                        },
-                        color: acre.saturating
-                            ? Colors.green[100]
-                            : Colors.green[50],
-                        child: TextButton(
-                          onPressed: () {
-                            _slideAcres(acre);
-                          },
-                          child: Text(acre.toString()),
-                        ))
+                                },
+                              );
+                            },
+                          );
+                          artboard.addController(controller!);
+                          List<bool> contiguity = contiguous(acre);
+                          acre.flowT = controller.findInput<bool>('topFlowing')
+                              as SMIBool;
+                          acre.flowT?.value = contiguity[0];
+                          acre.flowR = controller
+                              .findInput<bool>('rightFlowing') as SMIBool;
+                          acre.flowT?.value = contiguity[1];
+
+                          acre.flowB = controller
+                              .findInput<bool>('bottomFlowing') as SMIBool;
+                          acre.flowT?.value = contiguity[2];
+
+                          acre.flowL = controller.findInput<bool>('leftFlowing')
+                              as SMIBool;
+                          acre.flowT?.value = contiguity[3];
+                        }
+                      },
+                    ),
+                  )
                 : Container());
       }).toList(),
     );

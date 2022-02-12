@@ -85,7 +85,12 @@ class Acre {
         "\n" +
         position.toString() +
         saturating.toString() +
-        saturated.toString();
+        saturated.toString() +
+        " " +
+        flowT!.value.toString() +
+        flowR!.value.toString() +
+        flowB!.value.toString() +
+        flowL!.value.toString();
   }
 
   Acre copyWith({Position? newP, AcreType? newT, bool? newS}) {

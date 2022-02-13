@@ -23,9 +23,7 @@ class App extends StatelessWidget {
           height: landHeight,
           child: AspectRatio(
             aspectRatio: 1,
-            child: Land(
-              size: size,
-            ),
+            child: Land(),
           ),
         ),
       ),

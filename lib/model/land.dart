@@ -31,39 +31,35 @@ class _LandState extends State<Land> {
 
   // generates initial list of acres
   List<Acre> generateAcres(int size) {
-    List<Acre> acres = [];
-    acres.add(Acre(
-      id: 0,
-      position: const Position(
-        x: 0,
-        y: 0,
-      ),
-      type: AcreType.source,
-    ));
-    acres.add(
-      Acre(
-        id: (size * size - 1),
-        position: Position(
-          x: size - 1,
-          y: size - 1,
-        ),
-        type: AcreType.empty,
-      ),
-    );
-    emptyPos = Position(x: size - 1, y: size - 1);
-    acres[0].saturated = true;
-    for (int i = 1; i < (size * size) - 1; i++) {
-      acres.add(
-        Acre(
-            id: i,
-            position: Position(
-              x: i % size,
-              y: i ~/ size,
-            ),
-            type: AcreType.values[(i % (AcreType.values.length - 2)) + 1]),
-      );
+    // generate list of types
+    List<AcreType> types = [AcreType.empty];
+    int sourceCount = (size ~/ 6) + 1;
+    for (int i = 0; i < sourceCount; i++) {
+      types.add(AcreType.source);
+    }
+    for (int i = 0; i < (size * size) - (sourceCount + 1); i++) {
+      int idx = (i % (AcreType.values.length - 2)) + 2;
+      types.add(AcreType.values[idx]);
     }
 
+    // shuffle types
+    types.shuffle();
+
+    // generate acres from types
+    List<Acre> acres = [];
+    for (int i = 0; i < types.length; i++) {
+      if (types[i] == AcreType.empty) {
+        emptyPos = Position(x: i % size, y: i ~/ size);
+      }
+      acres.add(Acre(
+        id: i,
+        position: Position(
+          x: i % size,
+          y: i ~/ size,
+        ),
+        type: types[i],
+      ));
+    }
     return acres;
   }
 

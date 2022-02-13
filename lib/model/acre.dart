@@ -2,6 +2,7 @@ import 'package:acres/model/position.dart';
 import 'package:rive/rive.dart';
 
 enum AcreType {
+  empty,
   source,
   trb,
   rbl,
@@ -14,7 +15,6 @@ enum AcreType {
   rb,
   bl,
   tl,
-  empty,
 }
 
 extension ParseToString on AcreType {

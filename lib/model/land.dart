@@ -189,7 +189,7 @@ class _LandState extends State<Land> {
             top: acre.position.y * (landHeight / widget.size),
             width: landWidth / widget.size,
             height: landHeight / widget.size,
-            duration: const Duration(milliseconds: 420),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.ease,
             onEnd: () {
               setState(() {
@@ -204,10 +204,11 @@ class _LandState extends State<Land> {
                       _slideAcres(acre);
                     },
                     onLongPress: () {
+                      // ignore: avoid_print
                       print(acre);
                     },
                     child: RiveAnimation.asset(
-                      'acres.riv',
+                      'assets/acres.riv',
                       fit: BoxFit.cover,
                       stateMachines: const ['flows'],
                       artboard: acre.type.toShortString(),

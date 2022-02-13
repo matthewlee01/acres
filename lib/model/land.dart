@@ -150,18 +150,23 @@ class _LandState extends State<Land> {
     // iterate, recurse if contiguous and not already saturated
     for (int i = 0; i < _acres.length; i++) {
       Acre acre = _acres[i];
-      List<bool> contiguity = contiguous(acre);
       if ((acre.type == AcreType.source || contiguous(acre).contains(true)) &&
           acre.saturating == false) {
         setState(() {
           _acres[i].saturating = true;
-          _acres[i].flowT?.value = contiguity[0];
-          _acres[i].flowR?.value = contiguity[1];
-          _acres[i].flowB?.value = contiguity[2];
-          _acres[i].flowL?.value = contiguity[3];
         });
         irrigate();
       }
+    }
+  }
+
+  void setFlows() {
+    for (int i = 0; i < _acres.length; i++) {
+      var contiguity = contiguous(_acres[i]);
+      _acres[i].flowT?.value = contiguity[0];
+      _acres[i].flowR?.value = contiguity[1];
+      _acres[i].flowB?.value = contiguity[2];
+      _acres[i].flowL?.value = contiguity[3];
     }
   }
 
@@ -190,6 +195,7 @@ class _LandState extends State<Land> {
               setState(() {
                 drain();
                 irrigate();
+                setFlows();
               });
             },
             child: (acre.type != AcreType.empty)
@@ -214,8 +220,13 @@ class _LandState extends State<Land> {
                             onStateChange: (_, state) {
                               setState(
                                 () {
-                                  acre.saturated = (state == 'full');
+                                  if (state == 'full') {
+                                    acre.saturated = true;
+                                  } else if (!acre.saturating) {
+                                    acre.saturated = false;
+                                  }
                                   irrigate();
+                                  setFlows();
                                 },
                               );
                             },

@@ -133,13 +133,13 @@ class _LandState extends State<Land> {
 
   // clears saturating status from all acres
   void drain() {
-    for (int i = 0; i < _acres.length; i++) {
-      if (_acres[i].type != AcreType.source) {
-        _acres[i].saturating = false;
-        _acres[i].flowT?.value = false;
-        _acres[i].flowR?.value = false;
-        _acres[i].flowB?.value = false;
-        _acres[i].flowL?.value = false;
+    for (Acre acre in _acres) {
+      if (acre.type != AcreType.source) {
+        acre.saturating = false;
+        acre.flowT?.value = false;
+        acre.flowR?.value = false;
+        acre.flowB?.value = false;
+        acre.flowL?.value = false;
       }
     }
   }
@@ -147,12 +147,11 @@ class _LandState extends State<Land> {
   // saturates acres
   void irrigate() {
     // iterate, recurse if contiguous and not already saturated
-    for (int i = 0; i < _acres.length; i++) {
-      Acre acre = _acres[i];
+    for (Acre acre in _acres) {
       if ((acre.type == AcreType.source || contiguous(acre).contains(true)) &&
           acre.saturating == false) {
         setState(() {
-          _acres[i].saturating = true;
+          acre.saturating = true;
         });
         irrigate();
       }
@@ -160,19 +159,24 @@ class _LandState extends State<Land> {
   }
 
   void setFlows() {
-    for (int i = 0; i < _acres.length; i++) {
-      var contiguity = contiguous(_acres[i]);
-      _acres[i].flowT?.value = contiguity[0];
-      _acres[i].flowR?.value = contiguity[1];
-      _acres[i].flowB?.value = contiguity[2];
-      _acres[i].flowL?.value = contiguity[3];
+    for (Acre acre in _acres) {
+      var contiguity = contiguous(acre);
+      acre.flowT?.value = contiguity[0];
+      acre.flowR?.value = contiguity[1];
+      acre.flowB?.value = contiguity[2];
+      acre.flowL?.value = contiguity[3];
     }
   }
 
   bool fullySaturated() {
-    for (int i = 0; i < _acres.length; i++) {
-      if (!_acres[i].saturated && _acres[i].type != AcreType.empty) {
+    for (Acre acre in _acres) {
+      if (!acre.saturated && acre.type != AcreType.empty) {
         return false;
+      }
+    }
+    for (Acre acre in _acres) {
+      if (acre.type != AcreType.empty) {
+        print(acre);
       }
     }
     return true;
@@ -224,6 +228,7 @@ class _LandState extends State<Land> {
       },
       child: AnimatedOpacity(
         duration: const Duration(seconds: 2),
+        curve: Curves.easeInExpo,
         opacity: landOpacity,
         child: Stack(
           key: ValueKey(size),

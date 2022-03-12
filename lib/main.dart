@@ -3,6 +3,7 @@ import 'package:acres/model/land.dart';
 
 const double landWidth = 350;
 const double landHeight = 350;
+const Color mainGreen = Color(0xFF80BE4C);
 void main() {
   runApp(const App());
 }
@@ -14,17 +15,12 @@ class App extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'acres',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: const Center(
-        child: SizedBox(
-          width: landWidth,
-          height: landHeight,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Land(),
-          ),
+      home: ColoredBox(
+        color: mainGreen,
+        child: Center(
+          child: Land(),
         ),
       ),
     );

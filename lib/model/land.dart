@@ -1,10 +1,10 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:acres/model/acre.dart';
 import 'package:acres/model/position.dart';
 import 'package:rive/rive.dart';
 
-const double landWidth = 350;
-const double landHeight = 350;
+const double maxLength = 500;
 
 class Land extends StatefulWidget {
   const Land({
@@ -194,121 +194,128 @@ class _LandState extends State<Land> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(seconds: 2),
-      decoration: BoxDecoration(boxShadow: [
-        BoxShadow(
-          color: const Color.fromRGBO(255, 250, 125, 100),
-          blurRadius: haloSpread,
-          spreadRadius: haloSpread,
-          offset: const Offset(
-            0.0,
-            0.0,
-          ),
-        ),
-        const BoxShadow(
-          color: Colors.white,
-        )
-      ]),
-      onEnd: () {
-        if (haloSpread > 0.0) {
-          setState(() {
-            landOpacity = 0.0;
-            haloSpread = 0.0;
-          });
-        } else if (haloSpread == 0 && landOpacity == 0.0) {
-          landOpacity = 1.0;
-          transitionLevel();
-        }
-      },
-      child: AnimatedOpacity(
+    Size window = MediaQuery.of(context).size;
+    double length = min(min(window.width, window.height) * 0.9, maxLength);
+    return SizedBox(
+      width: length,
+      height: length,
+      child: AnimatedContainer(
         duration: const Duration(seconds: 2),
-        curve: Curves.easeInExpo,
-        opacity: landOpacity,
-        child: Stack(
-          key: ValueKey(size),
-          children: _acres.map((acre) {
-            return AnimatedPositioned(
-                key: ValueKey(acre.id),
-                left: acre.position.x * (landWidth / size),
-                top: acre.position.y * (landHeight / size),
-                width: landWidth / size,
-                height: landHeight / size,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-                onEnd: () {
-                  setState(() {
-                    drain();
-                    irrigate();
-                    setFlows();
-                    if (fullySaturated()) {
-                      endLevel();
-                    }
-                  });
-                },
-                child: (acre.type != AcreType.empty)
-                    ? GestureDetector(
-                        onTap: () {
-                          if (!tilesLocked) {
-                            _slideAcres(acre);
-                          }
-                        },
-                        onLongPress: () {
-                          // ignore: avoid_print
-                          print(acre);
-                        },
-                        child: RiveAnimation.asset(
-                          'assets/acres.riv',
-                          fit: BoxFit.cover,
-                          stateMachines: const ['flows'],
-                          artboard: acre.type.toShortString(),
-                          onInit: (Artboard artboard) {
-                            {
-                              final controller =
-                                  StateMachineController.fromArtboard(
-                                artboard,
-                                'flows',
-                                onStateChange: (_, state) {
-                                  setState(
-                                    () {
-                                      if (state == 'full') {
-                                        acre.saturated = true;
-                                      } else if (!acre.saturating) {
-                                        acre.saturated = false;
-                                      }
-                                      irrigate();
-                                      setFlows();
-                                      if (fullySaturated()) {
-                                        endLevel();
-                                      }
-                                    },
-                                  );
-                                },
-                              );
-                              artboard.addController(controller!);
-                              List<bool> contiguity = contiguous(acre);
-                              acre.flowT = controller
-                                  .findInput<bool>('topFlowing') as SMIBool;
-                              acre.flowT?.value = contiguity[0];
-                              acre.flowR = controller
-                                  .findInput<bool>('rightFlowing') as SMIBool;
-                              acre.flowR?.value = contiguity[1];
-
-                              acre.flowB = controller
-                                  .findInput<bool>('bottomFlowing') as SMIBool;
-                              acre.flowB?.value = contiguity[2];
-                              acre.flowL = controller
-                                  .findInput<bool>('leftFlowing') as SMIBool;
-                              acre.flowL?.value = contiguity[3];
-                              acre.flowS = controller
-                                  .findInput<bool>('saturating') as SMIBool;
-                              acre.flowS?.value = false;
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromRGBO(255, 250, 125, 100),
+              blurRadius: haloSpread,
+              spreadRadius: haloSpread,
+            ),
+            const BoxShadow(
+              color: Color(0xFF5B9D34),
+              spreadRadius: 5.0,
+            )
+          ],
+        ),
+        onEnd: () {
+          if (haloSpread > 0.0) {
+            setState(() {
+              landOpacity = 0.0;
+              haloSpread = 0.0;
+            });
+          } else if (haloSpread == 0 && landOpacity == 0.0) {
+            landOpacity = 1.0;
+            transitionLevel();
+          }
+        },
+        child: AnimatedOpacity(
+          duration: const Duration(seconds: 2),
+          curve: Curves.easeInExpo,
+          opacity: landOpacity,
+          child: Stack(
+            key: ValueKey(size),
+            children: _acres.map((acre) {
+              return AnimatedPositioned(
+                  key: ValueKey(acre.id),
+                  left: (acre.position.x * (length / size)).ceilToDouble(),
+                  top: (acre.position.y * (length / size)).ceilToDouble(),
+                  width: (length / size).ceilToDouble(),
+                  height: (length / size).ceilToDouble(),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.ease,
+                  onEnd: () {
+                    setState(() {
+                      drain();
+                      irrigate();
+                      setFlows();
+                      if (fullySaturated()) {
+                        endLevel();
+                      }
+                    });
+                  },
+                  child: (acre.type != AcreType.empty)
+                      ? GestureDetector(
+                          onTap: () {
+                            if (!tilesLocked) {
+                              _slideAcres(acre);
                             }
                           },
-                        ),
-                      )
-                    : Container());
-          }).toList(),
+                          onLongPress: () {
+                            // ignore: avoid_print
+                            print(acre);
+                          },
+                          child: RiveAnimation.asset(
+                            'assets/acres.riv',
+                            fit: BoxFit.cover,
+                            stateMachines: const ['flows'],
+                            artboard: acre.type.toShortString(),
+                            onInit: (Artboard artboard) {
+                              {
+                                final controller =
+                                    StateMachineController.fromArtboard(
+                                  artboard,
+                                  'flows',
+                                  onStateChange: (_, state) {
+                                    setState(
+                                      () {
+                                        if (state == 'full') {
+                                          acre.saturated = true;
+                                        } else if (!acre.saturating) {
+                                          acre.saturated = false;
+                                        }
+                                        irrigate();
+                                        setFlows();
+                                        if (fullySaturated()) {
+                                          endLevel();
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                                artboard.addController(controller!);
+                                List<bool> contiguity = contiguous(acre);
+                                acre.flowT = controller
+                                    .findInput<bool>('topFlowing') as SMIBool;
+                                acre.flowT?.value = contiguity[0];
+                                acre.flowR = controller
+                                    .findInput<bool>('rightFlowing') as SMIBool;
+                                acre.flowR?.value = contiguity[1];
+
+                                acre.flowB =
+                                    controller.findInput<bool>('bottomFlowing')
+                                        as SMIBool;
+                                acre.flowB?.value = contiguity[2];
+                                acre.flowL = controller
+                                    .findInput<bool>('leftFlowing') as SMIBool;
+                                acre.flowL?.value = contiguity[3];
+                                acre.flowS = controller
+                                    .findInput<bool>('saturating') as SMIBool;
+                                acre.flowS?.value = false;
+                              }
+                            },
+                          ),
+                        )
+                      : Container());
+            }).toList(),
+          ),
         ),
       ),
     );

@@ -175,11 +175,6 @@ class _LandState extends State<Land> {
         return false;
       }
     }
-    for (Acre acre in _acres) {
-      if (acre.type != AcreType.empty) {
-        print(acre);
-      }
-    }
     return true;
   }
 

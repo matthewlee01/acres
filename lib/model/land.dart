@@ -165,6 +165,7 @@ class _LandState extends State<Land> {
       acre.flowR?.value = contiguity[1];
       acre.flowB?.value = contiguity[2];
       acre.flowL?.value = contiguity[3];
+      acre.flowS?.value = acre.saturating;
     }
   }
 
@@ -302,10 +303,12 @@ class _LandState extends State<Land> {
                               acre.flowB = controller
                                   .findInput<bool>('bottomFlowing') as SMIBool;
                               acre.flowB?.value = contiguity[2];
-
                               acre.flowL = controller
                                   .findInput<bool>('leftFlowing') as SMIBool;
                               acre.flowL?.value = contiguity[3];
+                              acre.flowS = controller
+                                  .findInput<bool>('saturating') as SMIBool;
+                              acre.flowS?.value = false;
                             }
                           },
                         ),

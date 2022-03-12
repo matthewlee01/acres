@@ -38,6 +38,7 @@ class Acre {
   SMIBool? flowR;
   SMIBool? flowB;
   SMIBool? flowL;
+  SMIBool? flowS;
 
   final int id;
 
@@ -90,7 +91,8 @@ class Acre {
         flowT!.value.toString() +
         flowR!.value.toString() +
         flowB!.value.toString() +
-        flowL!.value.toString();
+        flowL!.value.toString() +
+        flowS!.value.toString();
   }
 
   Acre copyWith({Position? newP, AcreType? newT, bool? newS}) {

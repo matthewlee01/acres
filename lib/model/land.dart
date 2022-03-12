@@ -5,7 +5,6 @@ import 'package:rive/rive.dart';
 
 const double landWidth = 350;
 const double landHeight = 350;
-const String jingleAudioPath = '/assets/jingle.mp3';
 
 class Land extends StatefulWidget {
   const Land({
@@ -37,7 +36,7 @@ class _LandState extends State<Land> {
   List<Acre> generateAcres(int size) {
     // generate list of types
     List<AcreType> types = [AcreType.empty];
-    int sourceCount = (size ~/ 6) + 1;
+    int sourceCount = ((size - 3) ~/ 2) + 1;
     for (int i = 0; i < sourceCount; i++) {
       types.add(AcreType.source);
     }

@@ -20,7 +20,7 @@ class _LandState extends State<Land> {
   late Position emptyPos;
   int size = 3;
   double haloSpread = 0;
-  double landOpacity = 1.0;
+  double landOpacity = 0.0;
   bool tilesLocked = false;
 
   @override
@@ -29,7 +29,11 @@ class _LandState extends State<Land> {
   void initState() {
     super.initState();
     _acres = generateAcres(size);
-    irrigate();
+    Future.delayed(Duration.zero, () async {
+      setState(() {
+        landOpacity = 1.0;
+      });
+    });
   }
 
   // generates initial list of acres
@@ -187,6 +191,7 @@ class _LandState extends State<Land> {
   void transitionLevel() {
     setState(() {
       size++;
+      landOpacity = 1.0;
       _acres = generateAcres(size);
       tilesLocked = false;
     });
@@ -222,7 +227,6 @@ class _LandState extends State<Land> {
               haloSpread = 0.0;
             });
           } else if (haloSpread == 0 && landOpacity == 0.0) {
-            landOpacity = 1.0;
             transitionLevel();
           }
         },

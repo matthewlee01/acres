@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:acres/model/acre.dart';
 import 'package:acres/model/position.dart';
 import 'package:rive/rive.dart';
+import 'package:acres/globals.dart' as globals;
 
 const double maxLength = 500;
 
@@ -200,7 +201,8 @@ class _LandState extends State<Land> {
   @override
   Widget build(BuildContext context) {
     Size window = MediaQuery.of(context).size;
-    double length = min(min(window.width, window.height) * 0.9, maxLength);
+    double length = min(
+        min(window.width, window.height - globals.menuHeight) * 0.9, maxLength);
     return SizedBox(
       width: length,
       height: length,
@@ -215,7 +217,7 @@ class _LandState extends State<Land> {
               spreadRadius: haloSpread,
             ),
             const BoxShadow(
-              color: Color(0xFF5B9D34),
+              color: globals.darkGreen,
               spreadRadius: 5.0,
             )
           ],

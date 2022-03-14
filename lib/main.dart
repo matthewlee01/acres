@@ -14,25 +14,90 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'acres',
-        home: Column(
-          children: const <Widget>[
-            ColoredBox(
-              color: globals.darkGreen,
-              child: SizedBox(
-                width: double.infinity,
-                height: globals.menuHeight,
-                child: Text("hi"),
-              ),
+        theme: ThemeData(
+            fontFamily: "Comfortaa",
+            colorScheme: ColorScheme.fromSeed(seedColor: globals.darkGreen)),
+        home: Scaffold(
+          appBar: AppBar(
+            titleSpacing: 100,
+            title: const Text(
+              'acres',
+              style: TextStyle(color: globals.beige, fontSize: 25.0),
             ),
-            Expanded(
-              child: ColoredBox(
-                color: globals.bgGreen,
-                child: Center(
-                  child: Land(),
-                ),
-              ),
+            leading: Builder(
+              builder: (BuildContext context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                );
+              },
             ),
-          ],
+          ),
+          drawer: Drawer(
+            child: ColoredBox(
+                color: globals.lightGreen,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ColoredBox(
+                      color: globals.beige,
+                      child: Row(
+                        children: [
+                          Builder(
+                            builder: (BuildContext context) {
+                              return SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: IconButton(
+                                  color: globals.darkGreen,
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          const Spacer(),
+                          const Text('acres',
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: globals.darkGreen,
+                              )),
+                          const SizedBox(width: 20),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text("a game about irrigation!"),
+                          SizedBox(height: 15),
+                          Text(
+                              "coded with flutter, animated with rive, and hosted with firebase."),
+                          SizedBox(height: 15),
+                          Text("(flutter puzzle hack 2022 submission)"),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text("built by matthew lee"),
+                    )
+                  ],
+                )),
+          ),
+          body: const ColoredBox(
+            color: globals.bgGreen,
+            child: Center(
+              child: Land(),
+            ),
+          ),
         ));
   }
 }

@@ -93,7 +93,9 @@ class App extends StatelessWidget {
                         text: TextSpan(children: [
                           const TextSpan(
                               text: 'built by ',
-                              style: TextStyle(fontFamily: 'Comfortaa')),
+                              style: TextStyle(
+                                  fontFamily: 'Comfortaa',
+                                  color: Colors.black)),
                           TextSpan(
                               text: "matthew lee",
                               style: const TextStyle(

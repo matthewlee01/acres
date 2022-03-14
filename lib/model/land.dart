@@ -264,10 +264,6 @@ class _LandState extends State<Land> {
                               _slideAcres(acre);
                             }
                           },
-                          onLongPress: () {
-                            // ignore: avoid_print
-                            print(acre);
-                          },
                           child: RiveAnimation.asset(
                             'assets/acres.riv',
                             fit: BoxFit.cover,

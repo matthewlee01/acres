@@ -1,5 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:acres/model/land.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'globals.dart' as globals;
 
 void main() {
@@ -85,9 +87,29 @@ class App extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text("built by matthew lee"),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: RichText(
+                        text: TextSpan(children: [
+                          const TextSpan(
+                              text: 'built by ',
+                              style: TextStyle(fontFamily: 'Comfortaa')),
+                          TextSpan(
+                              text: "matthew lee",
+                              style: const TextStyle(
+                                  fontFamily: 'Comfortaa',
+                                  color: globals.darkGreen),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  const url = "https://twitter.com/matthew_j_l";
+                                  if (await canLaunch(url)) {
+                                    await launch(url);
+                                  } else {
+                                    throw 'Could not launch $url';
+                                  }
+                                }),
+                        ]),
+                      ),
                     )
                   ],
                 )),

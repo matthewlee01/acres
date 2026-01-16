@@ -82,7 +82,6 @@ class App extends StatelessWidget {
                           Text(
                               "coded with flutter, animated with rive, and hosted with firebase."),
                           SizedBox(height: 15),
-                          Text("(flutter puzzle hack 2022 submission)"),
                         ],
                       ),
                     ),
